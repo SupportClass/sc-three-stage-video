@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
+
+	<title>sc-three-stage-video demo</title>
+
+	<script src="../../webcomponentsjs/webcomponents-loader.js"></script>
+
+	<link rel="import" href="../../iron-demo-helpers/demo-pages-shared-styles.html">
+	<link rel="import" href="../../iron-demo-helpers/demo-snippet.html">
+	<link rel="import" href="../sc-three-stage-video.html">
+</head>
+<body>
+	<div class="vertical-section-container centered">
+		<h3>Basic sc-three-stage-video demo</h3>
+		<demo-snippet>
+			<template>
+				<sc-three-stage-video
+					id="demo"
+					enter-src="enter.webm"
+					loop-src="loop.webm"
+					exit-src="exit.webm">
+				</sc-three-stage-video>
+
+				<button onclick="demo.enterAndLoop()">Enter and Loop</button>
+				<button onclick="demo.exit()">Exit</button>
+				<button onclick="demo.exit(true)">Fast Exit</button>
+			</template>
+		</demo-snippet>
+	</div>
+</body>
+</html>

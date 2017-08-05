@@ -1,0 +1,328 @@
+<!--
+@license
+The MIT License (MIT)
+
+Copyright (c) 2017 Support Class
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+-->
+
+<link rel="import" href="../polymer/polymer-element.html">
+<link rel="import" href="../polymer/lib/utils/render-status.html">
+
+<!--
+A Polymer 2.x element for playing video assets with discrete entert, exit, and loop parts.
+
+### Styling
+
+By default, `sc-three-stage-video` will take on the width and height of the `enter` video.
+
+The following mixins are also available for styling:
+
+Mixin | Description | Default
+----------------|-------------|----------
+`--sc-three-stage-video-enter` | Mixin applied to the `enter` video | `{}`
+`--sc-three-stage-video-loop` | Mixin applied to the `loop` video | `{}`
+`--sc-three-stage-video-exit` | Mixin applied to the `exit` video | `{}`
+`--sc-three-stage-video-video` | Mixin applied to all videos | `{}`
+
+@demo demo/index.html
+-->
+
+<dom-module id="sc-three-stage-video">
+	<template>
+		<style>
+			:host {
+				display: block;
+				position: relative;
+			}
+
+			video {
+				visibility: hidden;
+				@apply --sc-three-stage-video-video;
+			}
+
+			video:not(:first-of-type) {
+				position: absolute;
+				top: 0;
+				left: 0;
+			}
+
+			#enter {
+				@apply --sc-three-stage-video-enter;
+			}
+
+			#loop {
+				@apply --sc-three-stage-video-loop;
+			}
+
+			#exit {
+				@apply --sc-three-stage-video-exit;
+			}
+		</style>
+
+		<video id="enter" src="[[enterSrc]]" preload muted="[[muted]]"></video>
+		<video id="loop" src="[[loopSrc]]" preload muted="[[muted]]"></video>
+		<video id="exit" src="[[exitSrc]]" preload muted="[[muted]]"></video>
+	</template>
+
+	<script>
+		/**
+		 * @customElement
+		 * @polymer
+		 * @extends Polymer.Element
+		 */
+		class ScThreeStageVideo extends Polymer.Element {
+			static get is() {
+				return 'sc-three-stage-video';
+			}
+
+			/**
+			 * Fired when all the video parts have finished loading.
+			 * @event ready
+			 */
+
+			static get properties() {
+				return {
+					/**
+					 * The URL of the video to use as the entrance.
+					 */
+					enterSrc: String,
+
+					/**
+					 * The URL of the video to use as the loop.
+					 */
+					loopSrc: String,
+
+					/**
+					 * The URL of the video to use as the exit.
+					 */
+					exitSrc: String,
+
+					/**
+					 * If true, disables the looping functionality.
+					 */
+					noLoop: {
+						type: Boolean,
+						reflectToAttribute: true
+					},
+
+					/**
+					 * If true, mutes any audio that the videos may have.
+					 */
+					muted: {
+						type: Boolean,
+						reflectToAttribute: true
+					},
+
+					/**
+					 * True when the enter video has finished loading.
+					 * @private
+					 */
+					_enterVideoReady: {
+						type: Boolean,
+						value: false,
+						readOnly: true
+					},
+
+					/**
+					 * True when the loop video has finished loading.
+					 * @private
+					 */
+					_loopVideoReady: {
+						type: Boolean,
+						value: false,
+						readOnly: true
+					},
+
+					/**
+					 * True when the exit video has finished loading.
+					 * @private
+					 */
+					_exitVideoReady: {
+						type: Boolean,
+						value: false,
+						readOnly: true
+					}
+				};
+			}
+
+			static get observers() {
+				return [
+					'_allVideosReady(_enterVideoReady, _loopVideoReady, _exitVideoReady)'
+				];
+			}
+
+			ready() {
+				super.ready();
+
+				const stages = ['enter', 'loop'];
+				if (this.exitSrc) {
+					stages.push('exit');
+				} else {
+					this._set_exitVideoReady(true);
+				}
+
+				stages.forEach(stage => {
+					if (this.$[stage].readyState >= 4) {
+						this[`_set_${stage}VideoReady`](true);
+					} else {
+						this.$[stage].addEventListener('canplaythrough', () => {
+							this[`_set_${stage}VideoReady`](true);
+						}, {once: true});
+					}
+				});
+
+				this.enterAndLoop = this.enterAndLoop.bind(this);
+			}
+
+			connectedCallback() {
+				super.connectedCallback();
+
+				Polymer.RenderStatus.beforeNextRender(this, () => {
+					// We implement our own loop logic because the built-in `loop` attribute never
+					// emits the "ended" event, which is annoying.
+					this.$.loop.addEventListener('ended', () => {
+						if (this.$.loop.shouldLoop) {
+							this.$.loop.play();
+						}
+					}, {passive: true});
+				});
+			}
+
+			/**
+			 * Plays the entrance video, and then begins playing the loop video.
+			 * @returns {Promise} - A promise that resolves when the entrance video has completed.
+			 */
+			enterAndLoop() {
+				this._playVideo(this.$.enter);
+				this.$.loop.shouldLoop = !this.noLoop;
+
+				return new Promise(resolve => {
+					this.$.enter.addEventListener('ended', () => {
+						this._playVideo(this.$.loop);
+						resolve();
+					}, {once: true, passive: true});
+				});
+			}
+
+			/**
+			 * Plays the exit video once the current loop iteration has completed.
+			 * @param {boolean} fast - If true, skips waiting for the current loop iteration to complete and
+			 * immediately begins playing the exit video.
+			 * @param {function} [exitStartCallback] - Called when the exit video has begun playing.
+			 * @returns {Promise} - A promise that resolves when the exit video has completed.
+			 */
+			exit(fast, exitStartCallback) {
+				this.$.loop.shouldLoop = false;
+
+				return new Promise(resolve => {
+					if (fast) {
+						setTimeout(() => {
+							this._playVideo(this.$.exit);
+							if (exitStartCallback) {
+								exitStartCallback();
+							}
+						}, 0);
+					} else {
+						this.$.loop.addEventListener('ended', () => {
+							this._playVideo(this.$.exit);
+							if (exitStartCallback) {
+								exitStartCallback();
+							}
+						}, {once: true, passive: true});
+					}
+
+					this.$.exit.addEventListener('ended', () => {
+						resolve();
+					}, {once: true, passive: true});
+				});
+			}
+
+			/**
+			 * Stops and hides all videos and moves their playheads back to the start.
+			 */
+			reset() {
+				[this.$.enter, this.$.loop, this.$.exit].forEach(stageVideo => {
+					if (stageVideo) {
+						this._stopVideo(stageVideo);
+						stageVideo.currentTime = 0;
+					}
+				});
+			}
+
+			/**
+			 * Fires the `ready` event if all the video parts have finished loading.
+			 * @param {boolean} _enterVideoReady
+			 * @param {boolean} _loopVideoReady
+			 * @param {boolean} _logoVideoReady
+			 * @private
+			 */
+			_allVideosReady(_enterVideoReady, _loopVideoReady, _logoVideoReady) {
+				if (_enterVideoReady && _loopVideoReady && _logoVideoReady) {
+					this.dispatchEvent(new CustomEvent('ready', {
+						bubbles: true,
+						composed: true
+					}));
+				}
+			}
+
+			/**
+			 * Hides any currently playing video and begins playing the provided video.
+			 * Seeks the video back to the start before beginning playback.
+			 * @param {HTMLVideoElement} videoElement - The <video> element to begin playing.
+			 * @returns {Promise} - A Promise that resolves when videoElement has begun playing.
+			 * @private
+			 */
+			_playVideo(videoElement) {
+				videoElement.currentTime = 0;
+				videoElement.style.visibility = 'visible';
+
+				// Stop any current video.
+				if (this._currentlyActiveVideo) {
+					this._stopVideo(this._currentlyActiveVideo);
+				}
+
+				return videoElement.play().then(() => {
+					if (this._currentlyActiveVideo === videoElement) {
+						return;
+					}
+
+					this._currentlyActiveVideo = videoElement;
+				});
+			}
+
+			/**
+			 * Stops and hides the provided videoElement.
+			 * Seeks the video back to the start on the next requestAnimationFrame.
+			 * param {HTMLVideoElement} videoElement - The <video> element to stop playing.
+			 * @private
+			 */
+			_stopVideo(videoElement) {
+				videoElement.pause();
+				videoElement.style.visibility = 'hidden';
+				requestAnimationFrame(() => {
+					videoElement.currentTime = 0;
+				});
+			}
+		}
+
+		customElements.define(ScThreeStageVideo.is, ScThreeStageVideo);
+	</script>
+</dom-module>
