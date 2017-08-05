@@ -5,7 +5,7 @@
   "authors": [
     "Alex Van Camp <email@alexvan.camp>"
   ],
-  "description": "A Polymer 2.x element for playing video assets with discrete entert, exit, and loop parts.",
+  "description": "A Polymer 2.x element for playing video assets with discrete enter, exit, and loop parts.",
   "main": "sc-three-stage-video.html",
   "moduleType": [],
   "keywords": [

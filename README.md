@@ -1,6 +1,6 @@
 # \<sc-three-stage-video\> [![Published on webcomponents.org](https://img.shields.io/badge/webcomponents.org-published-blue.svg)](https://www.webcomponents.org/element/SupportClass/sc-three-stage-video) [![Build Status](https://travis-ci.org/SupportClass/sc-three-stage-video.svg?branch=master)](https://travis-ci.org/SupportClass/sc-three-stage-video) [![Coverage Status](https://coveralls.io/repos/github/SupportClass/sc-three-stage-video/badge.svg?branch=master)](https://coveralls.io/github/SupportClass/sc-three-stage-video?branch=master) ![Polymer 2 only](https://img.shields.io/badge/Polymer%202-only-blue.svg)
 
-A Polymer 2.x element for playing video assets with discrete entert, exit, and loop parts.
+A Polymer 2.x element for playing video assets with discrete enter, exit, and loop parts.
 
 ## Motivation
 Sometimes we have assets that just doesn't make sense to implement purely in code. The asset might be too complex, too performance-intensive, or maybe we just don't have the time. In these cases, we often will pre-render the asset and slice it into discrete `enter`, `loop`, and `exit` parts.

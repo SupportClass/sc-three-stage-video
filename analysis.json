@@ -2,7 +2,7 @@
   "schema_version": "1.0.0",
   "elements": [
     {
-      "description": "A Polymer 2.x element for playing video assets with discrete entert, exit, and loop parts.\n\n### Styling\n\nBy default, `sc-three-stage-video` will take on the width and height of the `enter` video.\n\nThe following mixins are also available for styling:\n\nMixin | Description | Default\n----------------|-------------|----------\n`--sc-three-stage-video-enter` | Mixin applied to the `enter` video | `{}`\n`--sc-three-stage-video-loop` | Mixin applied to the `loop` video | `{}`\n`--sc-three-stage-video-exit` | Mixin applied to the `exit` video | `{}`\n`--sc-three-stage-video-video` | Mixin applied to all videos | `{}`",
+      "description": "A Polymer 2.x element for playing video assets with discrete enter, exit, and loop parts.\n\n### Styling\n\nBy default, `sc-three-stage-video` will take on the width and height of the `enter` video.\n\nThe following mixins are also available for styling:\n\nMixin | Description | Default\n----------------|-------------|----------\n`--sc-three-stage-video-enter` | Mixin applied to the `enter` video | `{}`\n`--sc-three-stage-video-loop` | Mixin applied to the `loop` video | `{}`\n`--sc-three-stage-video-exit` | Mixin applied to the `exit` video | `{}`\n`--sc-three-stage-video-video` | Mixin applied to all videos | `{}`",
       "summary": "",
       "path": "sc-three-stage-video.html",
       "properties": [
