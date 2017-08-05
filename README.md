@@ -24,9 +24,9 @@ bower install --save SupportClass/sc-three-stage-video
 ```html
 <sc-three-stage-video
 	id="demo"
-	enter-src="enter.webm"
-	loop-src="loop.webm"
-	exit-src="exit.webm">
+	enter-src="demo/enter.webm"
+	loop-src="demo/loop.webm"
+	exit-src="demo/exit.webm">
 </sc-three-stage-video>
 
 <button onclick="demo.enterAndLoop()">Enter and Loop</button>
