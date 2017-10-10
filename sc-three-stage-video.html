@@ -260,12 +260,16 @@ Mixin | Description | Default
 			 * Stops and hides all videos and moves their playheads back to the start.
 			 */
 			reset() {
+				const promises = [];
 				[this.$.enter, this.$.loop, this.$.exit].forEach(stageVideo => {
 					if (stageVideo) {
-						this._stopVideo(stageVideo);
-						stageVideo.currentTime = 0;
+						const promise = this._stopVideo(stageVideo).then(() => {
+							stageVideo.currentTime = 0;
+						});
+						promises.push(promise);
 					}
 				});
+				return Promise.all(promises);
 			}
 
 			/**
