@@ -295,13 +295,13 @@ Mixin | Description | Default
 			 * @returns {Promise} - A Promise that resolves when videoElement has begun playing.
 			 * @private
 			 */
-			_playVideo(videoElement) {
+			async _playVideo(videoElement) {
 				videoElement.currentTime = 0;
 				videoElement.style.visibility = 'visible';
 
 				// Stop any current video.
 				if (this._currentlyActiveVideo) {
-					this._stopVideo(this._currentlyActiveVideo);
+					await this._stopVideo(this._currentlyActiveVideo);
 				}
 
 				return videoElement.play().then(() => {
@@ -320,10 +320,13 @@ Mixin | Description | Default
 			 * @private
 			 */
 			_stopVideo(videoElement) {
-				videoElement.pause();
-				videoElement.style.visibility = 'hidden';
-				requestAnimationFrame(() => {
-					videoElement.currentTime = 0;
+				return new Promise(resolve => {
+					videoElement.pause();
+					videoElement.style.visibility = 'hidden';
+					requestAnimationFrame(() => {
+						videoElement.currentTime = 0;
+						resolve();
+					});
 				});
 			}
 		}
