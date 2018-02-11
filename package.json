@@ -1,6 +1,6 @@
 {
   "name": "sc-three-stage-video",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "description": "A Polymer 2.x element for playing video assets with discrete enter, exit, and loop parts.",
   "main": "sc-three-stage-video.html",
   "repository": {
