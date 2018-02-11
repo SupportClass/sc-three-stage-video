@@ -173,14 +173,19 @@ Mixin | Description | Default
 			ready() {
 				super.ready();
 
-				const stages = ['enter', 'loop'];
-				if (this.exitSrc) {
-					stages.push('exit');
-				} else {
-					this._set_exitVideoReady(true);
-				}
+				const possibleStages = ['enter', 'loop', 'exit'];
+				const actualStages = [];
 
-				stages.forEach(stage => {
+				possibleStages.forEach(stage => {
+					if (this[`${stage}Src`]) {
+						actualStages.push(stage);
+					} else {
+						this._set_enterVideoReady(true);
+						this[`_set_${stage}VideoReady`](true);
+					}
+				});
+
+				actualStages.forEach(stage => {
 					if (this.$[stage].readyState >= 4) {
 						this[`_set_${stage}VideoReady`](true);
 					} else {
@@ -217,7 +222,10 @@ Mixin | Description | Default
 
 				return new Promise(resolve => {
 					this.$.enter.addEventListener('ended', () => {
-						this._playVideo(this.$.loop);
+						if (this.loopSrc) {
+							this._playVideo(this.$.loop);
+						}
+
 						resolve();
 					}, {once: true, passive: true});
 				});
