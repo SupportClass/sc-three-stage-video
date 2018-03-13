@@ -317,6 +317,14 @@ Mixin | Description | Default
 					}
 
 					this._currentlyActiveVideo = videoElement;
+				}).catch(err => {
+					if (err.code === err.ABORT_ERR) {
+						// This is "The play() request was interrupted by a call to pause().".
+						// We often have legitimate reasons for doing this, and do not consider it an error.
+						// Therefore, we silently ignore these errors.
+					} else {
+						throw err;
+					}
 				});
 			}
 
