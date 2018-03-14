@@ -307,7 +307,7 @@ Mixin | Description | Default
 				videoElement.style.visibility = 'visible';
 
 				// Stop any current video.
-				if (this._currentlyActiveVideo) {
+				if (this._currentlyActiveVideo && this._currentlyActiveVideo !== videoElement) {
 					await this._stopVideo(this._currentlyActiveVideo);
 				}
 
